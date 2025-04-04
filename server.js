@@ -6,8 +6,13 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Create WebSocket Server on port 8080
-const wss = new WebSocket.Server({ port: 8080 });
+// Create HTTP Server
+const server = app.listen(process.env.PORT || 3000, () => {
+    console.log(`Server running on port ${server.address().port}`);
+});
+
+// Attach WebSocket to the same HTTP server
+const wss = new WebSocket.Server({ server });
 
 let clients = []; // Store connected clients
 
@@ -25,7 +30,7 @@ wss.on("connection", (ws) => {
 app.post("/purchase", (req, res) => {
     const { course } = req.body;
 
-    console.log(`Course Purchased: ${course}`); // Debugging
+    console.log(`Course Purchased: ${course}`);
 
     // Send notification to all connected clients
     clients.forEach(client => {
@@ -39,6 +44,3 @@ app.post("/purchase", (req, res) => {
 
     res.json({ success: true, message: "Notification sent!" });
 });
-
-// Start Express Server
-app.listen(3000, () => console.log("Server running on port 3000"));
